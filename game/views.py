@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -49,9 +50,10 @@ class FetchChannelList(GenericAPIView):
                 res = requests.get(headers=header, url=url)
                 if res.status_code == 200:
                     for a_guild in json.loads(res.content):
-                        guilds.append({
-                            **serialize_channel(a_guild)
-                        })
+                        if a_guild['owner']:
+                            guilds.append({
+                                **serialize_channel(a_guild)
+                            })
                 return Response(
                     {
                         "jsonrpc": "2.0",
@@ -86,8 +88,21 @@ class FetchChannelList(GenericAPIView):
                 )
         else:
             try:
-                header = {
+                header_guilds = {
                     'Authorization': token_type + ' ' + access_token,
+                    'Content-Type': 'application/json'
+                }
+                url_guilds = "https://discordapp.com/api/users/@me/guilds"
+                res_guilds = requests.get(headers=header_guilds, url=url_guilds)
+                if res_guilds.status_code == 200:
+                    for a_guild in json.loads(res_guilds.content):
+                        if a_guild['owner']:
+                            guilds.append({
+                                **serialize_channel(a_guild)
+                            })
+
+                header = {
+                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
                     'Content-Type': 'application/json'
                 }
                 url = "https://discordapp.com/api/guilds/{}/channels".format(guild)
@@ -122,6 +137,14 @@ class FetchChannelList(GenericAPIView):
                                     "placeholder": "Pick a channel...",
                                     "choices": channels
                                 },
+                                {
+                                    "key": "message",
+                                    "label": "Message Text",
+                                    "helpText": "",
+                                    "type": "string",
+                                    "required": True,
+                                    "placeholder": "Enter text"
+                                }
                             ]
                         }
                     },

@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
@@ -62,7 +63,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         if method == 'runAction':
             try:
                 header = {
-                    'Authorization': token_type + ' ' + access_token,
+                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
                     'Content-Type': 'application/json'
                 }
                 url = "https://discordapp.com/api/channels/{}/messages".format(channel)
