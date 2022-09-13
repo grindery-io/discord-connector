@@ -50,10 +50,10 @@ class FetchChannelList(GenericAPIView):
                 res = requests.get(headers=header, url=url)
                 if res.status_code == 200:
                     for a_guild in json.loads(res.content):
-                        # if a_guild['owner']:
-                        guilds.append({
-                            **serialize_channel(a_guild)
-                        })
+                        if a_guild['owner']:
+                            guilds.append({
+                                **serialize_channel(a_guild)
+                            })
                 return Response(
                     {
                         "jsonrpc": "2.0",
