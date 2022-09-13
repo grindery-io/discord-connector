@@ -42,18 +42,40 @@ class FetchChannelList(GenericAPIView):
 
         if guild == '':
             try:
-                header = {
+                list_my = []
+                unique_items = []
+
+                header_my = {
                     'Authorization': token_type + ' ' + access_token,
                     'Content-Type': 'application/json'
                 }
                 url = "https://discordapp.com/api/users/@me/guilds"
-                res = requests.get(headers=header, url=url)
-                if res.status_code == 200:
-                    for a_guild in json.loads(res.content):
+                res_my = requests.get(headers=header_my, url=url)
+                if res_my.status_code == 200:
+                    for a_guild in json.loads(res_my.content):
                         # if a_guild['owner']:
-                        guilds.append({
+                        list_my.append({
                             **serialize_channel(a_guild)
                         })
+
+                header_bot = {
+                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
+                    'Content-Type': 'application/json'
+                }
+                url = "https://discordapp.com/api/users/@me/guilds"
+                res_bot = requests.get(headers=header_bot, url=url)
+                if res_bot.status_code == 200:
+                    for a_bot_guild in json.loads(res_bot.content):
+                        list_my.append({
+                            **serialize_channel(a_bot_guild)
+                        })
+
+                for item in list_my:
+                    if item not in unique_items:
+                        unique_items.append(item)
+                    else:
+                        guilds.append(item)
+
                 return Response(
                     {
                         "jsonrpc": "2.0",
@@ -88,18 +110,39 @@ class FetchChannelList(GenericAPIView):
                 )
         else:
             try:
-                header_guilds = {
+                list_my = []
+                unique_items = []
+
+                header_my = {
                     'Authorization': token_type + ' ' + access_token,
                     'Content-Type': 'application/json'
                 }
-                url_guilds = "https://discordapp.com/api/users/@me/guilds"
-                res_guilds = requests.get(headers=header_guilds, url=url_guilds)
-                if res_guilds.status_code == 200:
-                    for a_guild in json.loads(res_guilds.content):
+                url = "https://discordapp.com/api/users/@me/guilds"
+                res_my = requests.get(headers=header_my, url=url)
+                if res_my.status_code == 200:
+                    for a_guild in json.loads(res_my.content):
                         # if a_guild['owner']:
-                        guilds.append({
+                        list_my.append({
                             **serialize_channel(a_guild)
                         })
+
+                header_bot = {
+                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
+                    'Content-Type': 'application/json'
+                }
+                url = "https://discordapp.com/api/users/@me/guilds"
+                res_bot = requests.get(headers=header_bot, url=url)
+                if res_bot.status_code == 200:
+                    for a_bot_guild in json.loads(res_bot.content):
+                        list_my.append({
+                            **serialize_channel(a_bot_guild)
+                        })
+
+                for item in list_my:
+                    if item not in unique_items:
+                        unique_items.append(item)
+                    else:
+                        guilds.append(item)
 
                 header = {
                     'Authorization': 'Bot {}'.format(os.environ['bot_token']),
