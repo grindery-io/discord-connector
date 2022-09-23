@@ -12,6 +12,8 @@ Steps:
     1. Clone/pull/download this repository
     2. Create a virtualenv with virtualenv env and install dependencies with pip install -r requirements.txt
     3. Configure your .env variables
+        You need to set bot_token.
+        You can get the bot_token from https://discord.com/developers/applications
 
 
 
