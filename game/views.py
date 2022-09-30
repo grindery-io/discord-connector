@@ -8,6 +8,9 @@ from rest_framework import status
 from .serializers import ConnectorSerializer
 from common.serializers import serialize_channel
 
+os.environ["CDS_NAME"] = "discord"
+REQUEST_PREFIX = os.path.expandvars(os.environ["CREDENTIAL_MANAGER_REQUEST_PREFIX"])
+
 
 class FetchChannelList(GenericAPIView):
     def __init__(self, *args, **kwargs):
@@ -31,11 +34,8 @@ class FetchChannelList(GenericAPIView):
             guild = params['fieldData']['guild']
         if 'channel' in params['fieldData']:
             channel = params['fieldData']['channel']
-        access_token = params['credentials']['access_token']
-        token_type = params['credentials']['token_type']
-        expires_in = params['credentials']['expires_in']
-        refresh_token = params['credentials']['refresh_token']
-        scope = params['credentials']['scope']
+        access_token = params['authentication']
+        token_type = 'Bearer'
 
         guilds = []
         channels = []
@@ -49,7 +49,7 @@ class FetchChannelList(GenericAPIView):
                     'Authorization': token_type + ' ' + access_token,
                     'Content-Type': 'application/json'
                 }
-                url = "https://discordapp.com/api/users/@me/guilds"
+                url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_my = requests.get(headers=header_my, url=url)
                 if res_my.status_code == 200:
                     for a_guild in json.loads(res_my.content):
@@ -117,7 +117,7 @@ class FetchChannelList(GenericAPIView):
                     'Authorization': token_type + ' ' + access_token,
                     'Content-Type': 'application/json'
                 }
-                url = "https://discordapp.com/api/users/@me/guilds"
+                url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_my = requests.get(headers=header_my, url=url)
                 if res_my.status_code == 200:
                     for a_guild in json.loads(res_my.content):

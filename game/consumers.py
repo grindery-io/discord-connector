@@ -26,9 +26,6 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         key = ''
         fields = ''
         session_id = ''
-        access_token = ''
-        token_type = ''
-        refresh_token = ''
         channel = ''
         message = ''
 
@@ -37,14 +34,6 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 key = params['key']
             if 'sessionId' in params:
                 session_id = params['sessionId']
-            if 'credentials' in params:
-                credentials = params['credentials']
-                if 'access_token' in credentials:
-                    access_token = credentials['access_token']
-                if 'refresh_token' in credentials:
-                    refresh_token = credentials['refresh_token']
-                if 'token_type' in credentials:
-                    token_type = credentials['token_type']
             if 'fields' in params:
                 fields = params['fields']
                 if 'channel' in fields:
@@ -72,6 +61,8 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 run_action_response = {
                     'jsonrpc': '2.0',
                     'result': {
+                        'key': key,
+                        'sessionId': session_id,
                         'payload': {
                             'status': res.status_code,
                             'body': json.loads(res.content)
