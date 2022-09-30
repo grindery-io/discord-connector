@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import base64
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,8 +9,7 @@ from rest_framework import status
 from .serializers import ConnectorSerializer
 from common.serializers import serialize_channel
 
-os.environ["CDS_NAME"] = "discord"
-REQUEST_PREFIX = os.path.expandvars(os.environ["CREDENTIAL_MANAGER_REQUEST_PREFIX"])
+from .request_prefix import REQUEST_PREFIX
 
 
 class FetchChannelList(GenericAPIView):
@@ -47,7 +47,6 @@ class FetchChannelList(GenericAPIView):
 
                 header_my = {
                     'Authorization': token_type + ' ' + access_token,
-                    'Content-Type': 'application/json'
                 }
                 url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_my = requests.get(headers=header_my, url=url)
@@ -59,10 +58,10 @@ class FetchChannelList(GenericAPIView):
                         })
 
                 header_bot = {
-                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
-                    'Content-Type': 'application/json'
+                    'Authorization': token_type + ' ' + access_token,
+                    'x-grindery-request-base64-authorization': base64.b64encode('Bot {{ secrets.bot_token }}')
                 }
-                url = "https://discordapp.com/api/users/@me/guilds"
+                url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_bot = requests.get(headers=header_bot, url=url)
                 if res_bot.status_code == 200:
                     for a_bot_guild in json.loads(res_bot.content):
@@ -114,8 +113,7 @@ class FetchChannelList(GenericAPIView):
                 unique_items = []
 
                 header_my = {
-                    'Authorization': token_type + ' ' + access_token,
-                    'Content-Type': 'application/json'
+                    'Authorization': token_type + ' ' + access_token
                 }
                 url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_my = requests.get(headers=header_my, url=url)
@@ -127,10 +125,10 @@ class FetchChannelList(GenericAPIView):
                         })
 
                 header_bot = {
-                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
-                    'Content-Type': 'application/json'
+                    'Authorization': token_type + ' ' + access_token,
+                    'x-grindery-request-base64-authorization': base64.b64encode('Bot {{ secrets.bot_token }}')
                 }
-                url = "https://discordapp.com/api/users/@me/guilds"
+                url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_bot = requests.get(headers=header_bot, url=url)
                 if res_bot.status_code == 200:
                     for a_bot_guild in json.loads(res_bot.content):
@@ -145,10 +143,10 @@ class FetchChannelList(GenericAPIView):
                         guilds.append(item)
 
                 header = {
-                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
-                    'Content-Type': 'application/json'
+                    'Authorization': token_type + ' ' + access_token,
+                    'x-grindery-request-base64-authorization': base64.b64encode('Bot {{ secrets.bot_token }}')
                 }
-                url = "https://discordapp.com/api/guilds/{}/channels".format(guild)
+                url = REQUEST_PREFIX + "discordapp.com/api/guilds/{}/channels".format(guild)
                 res = requests.get(headers=header, url=url)
                 if res.status_code == 200:
                     for a_channel in json.loads(res.content):

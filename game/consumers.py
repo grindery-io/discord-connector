@@ -1,7 +1,9 @@
 import json
-import os
+import base64
 import requests
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+
+from .request_prefix import REQUEST_PREFIX
 
 
 class SocketAdapter(AsyncJsonWebsocketConsumer):
@@ -28,6 +30,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         session_id = ''
         channel = ''
         message = ''
+        access_token = ''
 
         if params:
             if 'key' in params:
@@ -40,6 +43,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                     channel = fields['channel']
                 if 'message' in fields:
                     message = str(fields['message'])
+            access_token = params['authentication']
 
         if method == 'ping':
             response = {
@@ -52,7 +56,8 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         if method == 'runAction':
             try:
                 header = {
-                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
+                    'Authorization': 'Bearer ' + access_token,
+                    'x-grindery-request-base64-authorization': base64.b64encode('Bot {{ secrets.bot_token }}'),
                     'Content-Type': 'application/json'
                 }
                 url = "https://discordapp.com/api/channels/{}/messages".format(channel)
