@@ -58,7 +58,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
             try:
                 header = {
                     'Authorization': 'Bearer ' + access_token,
-                    'x-grindery-request-base64-authorization': base64.b64encode('Bot {{ secrets.bot_token }}'),
+                    'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}'),
                     'Content-Type': 'application/json'
                 }
                 url = "https://discordapp.com/api/channels/{}/messages".format(channel)
