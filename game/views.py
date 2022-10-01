@@ -59,7 +59,7 @@ class FetchChannelList(GenericAPIView):
 
                 header_bot = {
                     'Authorization': token_type + ' ' + access_token,
-                    'x-grindery-request-base64-authorization': base64.encode('Bot {{ secrets.bot_token }}')
+                    'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}')
                 }
                 url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_bot = requests.get(headers=header_bot, url=url)
@@ -127,7 +127,7 @@ class FetchChannelList(GenericAPIView):
 
                 header_bot = {
                     'Authorization': token_type + ' ' + access_token,
-                    'x-grindery-request-base64-authorization': base64.encode('Bot {{ secrets.bot_token }}')
+                    'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}')
                 }
                 url = REQUEST_PREFIX + "discordapp.com/api/users/@me/guilds"
                 res_bot = requests.get(headers=header_bot, url=url)
@@ -145,7 +145,7 @@ class FetchChannelList(GenericAPIView):
 
                 header = {
                     'Authorization': token_type + ' ' + access_token,
-                    'x-grindery-request-base64-authorization': base64.encode('Bot {{ secrets.bot_token }}')
+                    'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}')
                 }
                 url = REQUEST_PREFIX + "discordapp.com/api/guilds/{}/channels".format(guild)
                 res = requests.get(headers=header, url=url)
