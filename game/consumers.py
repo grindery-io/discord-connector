@@ -78,6 +78,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 }
 
             except Exception as e:
+                print("Error in WebSocket handler:", repr(e))
                 run_action_response = {
                     'jsonrpc': '2.0',
                     'error': {
