@@ -95,7 +95,8 @@ class FetchChannelList(GenericAPIView):
                     },
                     status=status.HTTP_201_CREATED
                 )
-            except Exception:
+            except Exception as e:
+                print("Error in HTTP handler:", repr(e))
                 return Response(
                     {
                         'jsonrpc': '2.0',
@@ -191,7 +192,8 @@ class FetchChannelList(GenericAPIView):
                     },
                     status=status.HTTP_201_CREATED
                 )
-            except Exception:
+            except Exception as e:
+                print("Error in HTTP handler:", repr(e))
                 return Response(
                     {
                         'jsonrpc': '2.0',
