@@ -61,7 +61,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                     'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}'),
                     'Content-Type': 'application/json'
                 }
-                url = "https://discordapp.com/api/channels/{}/messages".format(channel)
+                url = REQUEST_PREFIX + "discordapp.com/api/channels/{}/messages".format(channel)
                 data = json.dumps({"content": message})
                 res = requests.post(headers=header, url=url, data=data)
                 run_action_response = {
