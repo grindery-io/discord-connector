@@ -1,7 +1,9 @@
 import json
-import os
+import base64
 import requests
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+
+from .request_prefix import REQUEST_PREFIX
 
 
 class SocketAdapter(AsyncJsonWebsocketConsumer):
@@ -23,35 +25,6 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
         method = request.get("method", None)
         params = request.get("params", None)
         id = request.get("id", None)
-        key = ''
-        fields = ''
-        session_id = ''
-        access_token = ''
-        token_type = ''
-        refresh_token = ''
-        channel = ''
-        message = ''
-
-        if params:
-            if 'key' in params:
-                key = params['key']
-            if 'sessionId' in params:
-                session_id = params['sessionId']
-            if 'credentials' in params:
-                credentials = params['credentials']
-                if 'access_token' in credentials:
-                    access_token = credentials['access_token']
-                if 'refresh_token' in credentials:
-                    refresh_token = credentials['refresh_token']
-                if 'token_type' in credentials:
-                    token_type = credentials['token_type']
-            if 'fields' in params:
-                fields = params['fields']
-                if 'channel' in fields:
-                    channel = fields['channel']
-                if 'message' in fields:
-                    message = str(fields['message'])
-
         if method == 'ping':
             response = {
                 'jsonrpc': '2.0',
@@ -59,19 +32,43 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 'id': id
             }
             await self.send_json(response)
+            return
+        key = ''
+        fields = ''
+        session_id = ''
+        channel = ''
+        message = ''
+        access_token = ''
+
+        if params:
+            if 'key' in params:
+                key = params['key']
+            if 'sessionId' in params:
+                session_id = params['sessionId']
+            if 'fields' in params:
+                fields = params['fields']
+                if 'channel' in fields:
+                    channel = fields['channel']
+                if 'message' in fields:
+                    message = str(fields['message'])
+            access_token = params['authentication']
+
 
         if method == 'runAction':
             try:
                 header = {
-                    'Authorization': 'Bot {}'.format(os.environ['bot_token']),
+                    'Authorization': 'Bearer ' + access_token,
+                    'x-grindery-request-base64-authorization': base64.b64encode(b'Bot {{ secrets.bot_token }}'),
                     'Content-Type': 'application/json'
                 }
-                url = "https://discordapp.com/api/channels/{}/messages".format(channel)
+                url = REQUEST_PREFIX + "discordapp.com/api/channels/{}/messages".format(channel)
                 data = json.dumps({"content": message})
                 res = requests.post(headers=header, url=url, data=data)
                 run_action_response = {
                     'jsonrpc': '2.0',
                     'result': {
+                        'key': key,
+                        'sessionId': session_id,
                         'payload': {
                             'status': res.status_code,
                             'body': json.loads(res.content)
@@ -81,6 +78,7 @@ class SocketAdapter(AsyncJsonWebsocketConsumer):
                 }
 
             except Exception as e:
+                print("Error in WebSocket handler:", repr(e))
                 run_action_response = {
                     'jsonrpc': '2.0',
                     'error': {
